@@ -1,11 +1,11 @@
 {
-    "name": "our_ai_story",
-    "short_name": "our_ai_story",
-    "start_url": ".",
+    "name": "AI Chat Log",
+    "short_name": "ChatLog",
+    "start_url": "/",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#ffffff",
+    "theme_color": "#2196F3",
+    "description": "AIとの会話ログを安全に保存・管理するアプリケーション",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
