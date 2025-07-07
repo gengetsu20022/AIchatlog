@@ -1,0 +1,63 @@
+# ==========================================
+# あいろぐ Docker Compose 設定
+# ==========================================
+
+version: '3.8'
+
+services:
+  # ==========================================
+  # 本番用サービス
+  # ==========================================
+  production:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: ailog-production
+    ports:
+      - "80:80"
+    environment:
+      - ENVIRONMENT=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - ailog-network
+    labels:
+      - "com.docker.compose.service=ailog-production"
+      - "description=あいろぐ本番環境"
+
+  # ==========================================
+  # 開発用サービス
+  # ==========================================
+  development:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: ailog-development
+    ports:
+      - "3000:3000"
+    environment:
+      - ENVIRONMENT=development
+      - FLUTTER_WEB=true
+    volumes:
+      - .:/app
+      - /app/.dart_tool
+      - /app/build
+    restart: unless-stopped
+    networks:
+      - ailog-network
+    labels:
+      - "com.docker.compose.service=ailog-development"
+      - "description=あいろぐ開発環境"
+
+networks:
+  ailog-network:
+    driver: bridge
+    labels:
+      - "description=あいろぐ専用ネットワーク" 

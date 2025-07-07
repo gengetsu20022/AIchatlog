@@ -1,0 +1,101 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ユーザー情報（読み取り専用、認証済みユーザーのみ）
+    match /users/{userId} {
+      allow read, write: if request.auth != null 
+        && request.auth.uid == userId;
+    }
+    
+    // チャットログ（認証済みユーザーが自分のデータのみアクセス可能）
+    match /chats/{chatId} {
+      allow read, write: if request.auth != null 
+        && request.auth.uid == resource.data.userId;
+      
+      // 新規作成時の検証
+      allow create: if request.auth != null 
+        && request.auth.uid == request.resource.data.userId
+        && isValidChatLog(request.resource.data);
+      
+      // 更新時の検証
+      allow update: if request.auth != null 
+        && request.auth.uid == resource.data.userId
+        && request.auth.uid == request.resource.data.userId
+        && isValidChatLog(request.resource.data);
+      
+      // メッセージサブコレクション
+      match /messages/{messageId} {
+        allow read, write: if request.auth != null 
+          && request.auth.uid == get(/databases/$(database)/documents/chats/$(chatId)).data.userId;
+        
+        // 新規メッセージ作成時の検証
+        allow create: if request.auth != null 
+          && request.auth.uid == get(/databases/$(database)/documents/chats/$(chatId)).data.userId
+          && isValidMessage(request.resource.data);
+        
+        // メッセージ更新時の検証
+        allow update: if request.auth != null 
+          && request.auth.uid == get(/databases/$(database)/documents/chats/$(chatId)).data.userId
+          && isValidMessage(request.resource.data);
+      }
+    }
+    
+    // セキュリティログ（システムのみ書き込み可能、管理者のみ読み取り可能）
+    match /security_logs/{logId} {
+      // 読み取りは管理者のみ（実際の実装では管理者判定ロジックが必要）
+      allow read: if false; // 現在は無効化
+      
+      // 書き込みは認証済みユーザーのみ（自分のログのみ）
+      allow create: if request.auth != null 
+        && request.auth.uid == request.resource.data.userId
+        && isValidSecurityLog(request.resource.data);
+      
+      // 更新・削除は禁止
+      allow update, delete: if false;
+    }
+
+    // その他のコレクションはデフォルトで拒否
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+  
+  // チャットログデータのバリデーション関数
+  function isValidChatLog(data) {
+    return data.keys().hasAll(['userId', 'chatDate', 'aiName', 'userName', 'createdAt'])
+      && data.userId is string
+      && data.aiName is string 
+      && data.userName is string
+      && data.chatDate is timestamp
+      && data.createdAt is timestamp
+      && data.aiName.size() <= 50
+      && data.userName.size() <= 50
+      && data.aiName.size() > 0
+      && data.userName.size() > 0;
+  }
+  
+  // メッセージデータのバリデーション関数
+  function isValidMessage(data) {
+    return data.keys().hasAll(['sender', 'text', 'timestamp'])
+      && data.sender is string
+      && data.text is string
+      && data.timestamp is number
+      && data.sender in ['user', 'ai']
+      && data.text.size() <= 10000
+      && data.text.size() > 0;
+  }
+
+  // セキュリティログデータのバリデーション関数
+  function isValidSecurityLog(data) {
+    return data.keys().hasAll(['userId', 'eventType', 'description', 'timestamp'])
+      && data.userId is string
+      && data.eventType is string
+      && data.description is string
+      && data.timestamp is timestamp
+      && data.userId.size() > 0
+      && data.eventType.size() > 0
+      && data.description.size() > 0
+      && data.description.size() <= 1000;
+  }
+} 

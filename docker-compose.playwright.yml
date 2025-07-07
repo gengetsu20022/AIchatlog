@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  # Flutter Web ビルドとサーバー
+  flutter-web:
+    build:
+      context: .
+      dockerfile: Dockerfile.flutter
+    volumes:
+      - .:/app
+      - flutter_cache:/app/.dart_tool
+    working_dir: /app
+    command: |
+      bash -c "
+        flutter pub get &&
+        flutter build web --release &&
+        python3 -m http.server 8080 -d build/web
+      "
+    ports:
+      - "8080:8080"
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Playwright テスト実行
+  playwright-test:
+    image: mcr.microsoft.com/playwright:v1.40.0-focal
+    working_dir: /app
+    volumes:
+      - .:/app
+      - node_modules_cache:/app/node_modules
+    depends_on:
+      flutter-web:
+        condition: service_healthy
+    environment:
+      - CI=true
+      - PLAYWRIGHT_BASE_URL=http://flutter-web:8080
+    networks:
+      - test-network
+    command: |
+      bash -c "
+        npm ci &&
+        npx playwright install &&
+        npx playwright test
+      "
+
+  # ヘッドレスモード無効でのテスト（デバッグ用）
+  playwright-debug:
+    image: mcr.microsoft.com/playwright:v1.40.0-focal
+    working_dir: /app
+    volumes:
+      - .:/app
+      - node_modules_cache:/app/node_modules
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    depends_on:
+      flutter-web:
+        condition: service_healthy
+    environment:
+      - CI=false
+      - DISPLAY=${DISPLAY}
+      - PLAYWRIGHT_BASE_URL=http://flutter-web:8080
+    networks:
+      - test-network
+    command: |
+      bash -c "
+        npm ci &&
+        npx playwright install &&
+        npx playwright test --headed --project=chromium
+      "
+
+  # レポート表示用サーバー
+  report-server:
+    image: nginx:alpine
+    volumes:
+      - ./playwright-report:/usr/share/nginx/html:ro
+    ports:
+      - "8081:80"
+    networks:
+      - test-network
+    depends_on:
+      - playwright-test
+
+volumes:
+  flutter_cache:
+  node_modules_cache:
+
+networks:
+  test-network:
+    driver: bridge 

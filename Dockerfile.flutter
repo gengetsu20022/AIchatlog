@@ -1,0 +1,30 @@
+# Flutter開発環境用Dockerfile
+FROM ghcr.io/cirruslabs/flutter:3.24.5
+
+# 作業ディレクトリを設定
+WORKDIR /app
+
+# 必要なツールをインストール
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Firebase CLIをインストール
+RUN curl -sL https://firebase.tools | bash
+
+# FlutterFire CLIをインストール
+RUN dart pub global activate flutterfire_cli
+
+# PATHを設定
+ENV PATH="$PATH:/root/.pub-cache/bin"
+
+# アプリケーションファイルをコピー
+COPY . .
+
+# Flutter依存関係を取得
+RUN flutter pub get
+
+# デフォルトコマンド
+CMD ["bash"] 

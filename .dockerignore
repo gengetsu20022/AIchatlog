@@ -1,0 +1,51 @@
+# Git関連
+.git
+.gitignore
+.gitattributes
+
+# Docker関連
+Dockerfile
+docker-compose*.yml
+
+# IDE設定
+.vscode/
+.idea/
+*.iml
+
+# OS固有ファイル
+.DS_Store
+Thumbs.db
+
+# Flutter ビルド成果物
+.dart_tool/
+build/
+
+# 機密情報
+.env*
+*.key
+*.pem
+
+# ドキュメント
+Document/
+README.md
+
+# テスト
+test/
+coverage/
+
+# Development artifacts
+packages/
+node_modules/
+
+# Credentials
+.env
+
+# Test files
+**/*_test.dart
+
+# Android & iOS native folders not needed for web build
+android/
+ios/
+macos/
+windows/
+linux/ 

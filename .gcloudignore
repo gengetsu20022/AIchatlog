@@ -1,0 +1,95 @@
+# ==========================================
+# Google Cloud / Firebase デプロイ用 ignore
+# ==========================================
+
+# Git関連
+.git/
+.gitignore
+.gitattributes
+
+# Development files
+.dart_tool/
+.packages
+.pub/
+build/packages/
+packages/
+
+# IDE & OS
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# 機密情報 (重要: 絶対にデプロイしない)
+# ==========================================
+.env*
+*.key
+*.pem
+*.p12
+*.keystore
+secrets.yaml
+config/secrets/
+auth.json
+credentials.json
+service-account-*.json
+firebase_options_real.dart
+
+# ==========================================
+# 開発・テスト関連
+# ==========================================
+test/
+coverage/
+Document/
+docs/
+notes/
+TODO.md
+README.md
+
+# ==========================================
+# ログ・一時ファイル
+# ==========================================
+*.log
+*.tmp
+*.swp
+*.pid
+firebase-debug*.log
+
+# ==========================================
+# Dependencies (ビルド時に再取得)
+# ==========================================
+node_modules/
+.npm/
+
+# ==========================================
+# Docker関連 (デプロイ不要)
+# ==========================================
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# ==========================================
+# バックアップ・アーカイブ
+# ==========================================
+*.backup
+*.bak
+*.orig
+*.zip
+*.tar.gz
+
+# ==========================================
+# プラットフォーム固有 (Web以外)
+# ==========================================
+android/
+ios/
+macos/
+windows/
+linux/
+
+# ==========================================
+# Firebase関連 (設定ファイルのみ)
+# ==========================================
+.firebaserc
+firebase.json
+# 注意: firebase_options.dart は含める（本番設定） 

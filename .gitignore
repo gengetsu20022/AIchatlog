@@ -1,0 +1,179 @@
+# ==========================================
+# Flutter & Dart 関連
+# ==========================================
+.dart_tool/
+build/
+packages/
+pubspec.lock
+# Generated files
+*.dart.js
+*.info.json
+*.js.deps
+*.js.map
+*.freezed.dart
+*.g.dart
+*.mocks.dart
+
+# ==========================================
+# IDE & OS ファイル
+# ==========================================
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+.directory
+*~
+
+# ==========================================
+# Android & iOS
+# ==========================================
+android/.gradle/
+android/gradle/
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/local.properties
+android/key.properties
+android/.metadata
+ios/Flutter/
+ios/Pods/
+ios/*.xcworkspace
+ios/*.xcuserdata
+ios/Runner.xcodeproj/project.xcworkspace/
+ios/Runner.xcodeproj/xcuserdata/
+
+# ==========================================
+# Web build
+# ==========================================
+web/build/
+
+# ==========================================
+# Test & coverage
+# ==========================================
+coverage/
+test_driver/
+integration_test/
+
+# ==========================================
+# Logs & temporary files
+# ==========================================
+*.log
+*.tmp
+*.swp
+*.swo
+*.pid
+*.seed
+*.pid.lock
+
+# ==========================================
+# 🔐 セキュリティ重要ファイル (機密情報)
+# ==========================================
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Firebase関連 (実際の設定値が含まれている場合)
+firebase_options_real.dart
+google-services.json
+GoogleService-Info.plist
+.firebaserc
+firebase-debug.log
+firebase-debug.*.log
+
+# API Keys & Secrets
+*.key
+*.pem
+*.p12
+*.keystore
+secrets.yaml
+config/secrets/
+
+# Authentication files
+auth.json
+credentials.json
+service-account-*.json
+
+# ==========================================
+# Development & Documentation
+# ==========================================
+# Documentation (local)
+Document/
+docs/local/
+notes/
+TODO.md
+
+# ==========================================
+# Dependencies & Package managers
+# ==========================================
+# Node modules (if any)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==========================================
+# Docker & Infrastructure
+# ==========================================
+# 注意: E2Eテスト用のDockerファイルは含める
+# Dockerfile
+# docker-compose.yml
+# docker-compose.*.yml
+# .dockerignore
+
+# Docker実行時の一時ファイル
+.docker/
+docker-data/
+
+# ==========================================
+# Backup & Archive files
+# ==========================================
+*.backup
+*.bak
+*.orig
+*.rej
+*.zip
+*.tar.gz
+*.tar.bz2
+
+# ==========================================
+# Database files
+# ==========================================
+*.db
+*.sqlite
+*.sqlite3
+
+# ==========================================
+# Generated certificate files
+# ==========================================
+*.crt
+*.csr
+*.der
+*.p7b
+*.p7c
+*.p7r
+*.spc
+
+# ==========================================
+# E2E Testing (Playwright)
+# ==========================================
+# Playwright test results
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Node.js dependencies (E2Eテスト用)
+node_modules/
+package-lock.json
+
+# Playwright screenshots & videos
+test-results/
+test-results-*/
+artifacts/
+
+# Test report files
+*.xml
+test-results.json 

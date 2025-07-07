@@ -1,0 +1,56 @@
+# Docker Compose file for E2E testing environment
+# Note: version field is deprecated in newer Docker Compose versions
+
+services:
+  # Flutter Web開発サーバー
+  flutter-web:
+    build:
+      context: .
+      dockerfile: Dockerfile.flutter
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+      - flutter_pub_cache:/root/.pub-cache
+    working_dir: /app
+    command: bash -c "flutter pub get && flutter build web && python3 -m http.server 8080 --directory build/web"
+    environment:
+      - FLUTTER_WEB=true
+    networks:
+      - e2e-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Playwrightテスト実行環境
+  playwright-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.playwright
+    depends_on:
+      flutter-web:
+        # Flutter Web サーバーは起動直後に Web ビルドを行うためヘルスチェックが安定するまで時間が掛かる。
+        # プレイライト側は独自に URL の疎通を待機するため、ここでは service_started に留める。
+        condition: service_started
+    volumes:
+      - .:/app
+      - playwright_cache:/ms-playwright
+    working_dir: /app
+    environment:
+      - CI=true
+      - FLUTTER_WEB_URL=http://flutter-web:8080
+      - TEST_TIMEOUT=600  # 10分タイムアウト（E2E テストは時間がかかるため）
+      - MAX_WAIT_TIME=240  # Flutter Web 待機時間
+    networks:
+      - e2e-network
+    command: bash -c "npm ci && npx playwright install --with-deps && npx playwright test --reporter=html"
+
+volumes:
+  flutter_pub_cache:
+  playwright_cache:
+
+networks:
+  e2e-network:
+    driver: bridge 

@@ -1,0 +1,33 @@
+{
+  "name": "ailog-e2e-tests",
+  "version": "1.0.0",
+  "description": "E2E tests for あいろぐ - AI conversation diary app",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:chromium": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:webkit": "playwright test --project=webkit",
+    "test:mobile": "playwright test --project='Mobile Chrome' --project='Mobile Safari'",
+    "report": "playwright show-report",
+    "install:browsers": "playwright install --with-deps",
+    "serve": "flutter build web --release && python -m http.server 8080 -d build/web"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.53.2"
+  },
+  "keywords": [
+    "flutter",
+    "e2e",
+    "testing",
+    "playwright",
+    "web-app"
+  ],
+  "author": "AIchatlog Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16"
+  }
+}

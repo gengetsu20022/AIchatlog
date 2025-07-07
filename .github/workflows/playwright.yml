@@ -1,0 +1,165 @@
+name: Playwright E2E Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  
+  # 手動実行を有効化
+  workflow_dispatch:
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.5'
+        channel: 'stable'
+        cache: true
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install Flutter dependencies
+      run: flutter pub get
+    
+    - name: Install Node.js dependencies
+      run: npm ci
+    
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps ${{ matrix.browser }}
+    
+    - name: Build Flutter Web
+      run: flutter build web --release
+    
+    - name: Run Playwright tests
+      run: npx playwright test --project=${{ matrix.browser }}
+      env:
+        CI: true
+    
+    - name: Upload Playwright Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report-${{ matrix.browser }}
+        path: playwright-report/
+        retention-days: 30
+    
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-${{ matrix.browser }}
+        path: test-results/
+        retention-days: 30
+
+  # 全ブラウザでのテスト完了後にレポートを統合
+  report:
+    if: always()
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts/
+    
+    - name: Generate combined report
+      run: |
+        mkdir -p combined-report
+        echo "# Playwright Test Results" > combined-report/summary.md
+        echo "" >> combined-report/summary.md
+        echo "## Test Execution Summary" >> combined-report/summary.md
+        echo "" >> combined-report/summary.md
+        
+        for browser in chromium firefox webkit; do
+          echo "### $browser" >> combined-report/summary.md
+          if [ -d "artifacts/playwright-report-$browser" ]; then
+            echo "✅ Tests completed" >> combined-report/summary.md
+          else
+            echo "❌ Tests failed or skipped" >> combined-report/summary.md
+          fi
+          echo "" >> combined-report/summary.md
+        done
+    
+    - name: Upload Combined Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: combined-test-report
+        path: combined-report/
+        retention-days: 30
+
+  # モバイルテスト用の別ジョブ
+  mobile-test:
+    timeout-minutes: 45
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.5'
+        channel: 'stable'
+        cache: true
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install Flutter dependencies
+      run: flutter pub get
+    
+    - name: Install Node.js dependencies
+      run: npm ci
+    
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps chromium
+    
+    - name: Build Flutter Web
+      run: flutter build web --release
+    
+    - name: Run Mobile Tests
+      run: npx playwright test --project="Mobile Chrome" --project="Mobile Safari"
+      env:
+        CI: true
+    
+    - name: Upload Mobile Test Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report-mobile
+        path: playwright-report/
+        retention-days: 30 
