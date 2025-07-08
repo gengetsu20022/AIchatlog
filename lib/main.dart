@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'config/firebase_config.dart';
 import 'pages/home_page.dart';
 import 'services/rate_limiter.dart';
 import 'services/security_logger.dart';
@@ -8,16 +8,23 @@ import 'services/security_logger.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Firebase初期化（本番用設定）
+  // 環境変数を読み込み
+  await FirebaseConfig.loadEnvironment();
+  
+  // Firebase初期化（環境変数ベース）
   try {
     await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
+      options: FirebaseConfig.currentPlatform,
     );
-    print('Firebase初期化成功');
+    print('✅ Firebase初期化成功');
+    
+    // デバッグモードでは設定情報を表示
+    FirebaseConfig.debugPrintConfig();
   } catch (e) {
-    print('Firebase初期化エラー: $e');
+    print('🚨 Firebase初期化エラー: $e');
+    print('💡 .envファイルが正しく設定されているか確認してください');
     // デモモード用：Firebase初期化に失敗してもアプリを続行
-    print('デモモードで続行します');
+    print('⚠️ デモモードで続行します');
   }
 
   // セキュリティサービスの初期化

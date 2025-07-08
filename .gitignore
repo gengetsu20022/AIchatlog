@@ -78,6 +78,7 @@ integration_test/
 
 # Firebase関連 (実際の設定値が含まれている場合)
 firebase_options_real.dart
+firebase_options_backup.dart
 google-services.json
 GoogleService-Info.plist
 .firebaserc

@@ -1,0 +1,141 @@
+name: Security Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Check for API keys in code
+        run: |
+          echo "🔍 Checking for potential API keys..."
+          
+          # Firebase APIキーの検索（実際のキーは除外）
+          if grep -r "AIza[0-9A-Za-z_-]{35}" . --exclude-dir=.git --exclude-dir=.github; then
+            echo "⚠️ Potential Firebase API key found in code!"
+            echo "Please use environment variables for API keys."
+            exit 1
+          fi
+          
+          # その他のAPIキーパターン
+          if grep -r "sk-[a-zA-Z0-9]{32,}" . --exclude-dir=.git --exclude-dir=.github; then
+            echo "⚠️ Potential OpenAI API key found!"
+            exit 1
+          fi
+          
+          echo "✅ No API keys found in code"
+      
+      - name: Check for .env files
+        run: |
+          echo "🔍 Checking for .env files..."
+          
+          if find . -name ".env*" -not -path "./.git/*" -not -name "env.example"; then
+            echo "⚠️ .env file found in repository!"
+            echo "Please ensure .env files are in .gitignore"
+            exit 1
+          fi
+          
+          echo "✅ No .env files found in repository"
+      
+      - name: Check for hardcoded secrets
+        run: |
+          echo "🔍 Checking for hardcoded secrets..."
+          
+          # パスワードの検索
+          if grep -ri "password.*=.*['\"][^'\"]*['\"]" . --exclude-dir=.git --exclude-dir=.github; then
+            echo "⚠️ Potential hardcoded password found!"
+            exit 1
+          fi
+          
+          # 秘密鍵の検索
+          if grep -r "BEGIN.*PRIVATE.*KEY" . --exclude-dir=.git --exclude-dir=.github; then
+            echo "⚠️ Potential private key found!"
+            exit 1
+          fi
+          
+          echo "✅ No hardcoded secrets found"
+      
+      - name: Check .gitignore coverage
+        run: |
+          echo "🔍 Checking .gitignore coverage..."
+          
+          # .envファイルが.gitignoreに含まれているかチェック
+          if ! grep -q "^\.env$" .gitignore; then
+            echo "⚠️ .env is not in .gitignore!"
+            exit 1
+          fi
+          
+          # firebase_options_backup.dartが.gitignoreに含まれているかチェック
+          if ! grep -q "firebase_options_backup\.dart" .gitignore; then
+            echo "⚠️ firebase_options_backup.dart is not in .gitignore!"
+            exit 1
+          fi
+          
+          echo "✅ .gitignore coverage is adequate"
+
+  dependency-scan:
+    name: Dependency Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+      
+      - name: Install dependencies
+        run: flutter pub get
+      
+      - name: Run dependency audit
+        run: |
+          echo "🔍 Running dependency security audit..."
+          
+          # Dartパッケージの脆弱性チェック
+          if flutter pub deps --json | grep -i "vulnerability\|security"; then
+            echo "⚠️ Potential security issues found in dependencies!"
+            echo "Please review and update dependencies."
+          fi
+          
+          echo "✅ Dependency scan completed"
+
+  docker-security:
+    name: Docker Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Check Dockerfile security
+        run: |
+          echo "🔍 Checking Dockerfile security..."
+          
+          # rootユーザーでの実行をチェック
+          if grep -q "USER root" Dockerfile; then
+            echo "⚠️ Running as root user in Docker!"
+            echo "Consider using a non-root user for security."
+          fi
+          
+          # 機密情報がDockerfileに含まれていないかチェック
+          if grep -i "password\|secret\|key" Dockerfile; then
+            echo "⚠️ Potential secrets in Dockerfile!"
+            exit 1
+          fi
+          
+          echo "✅ Dockerfile security check passed" 

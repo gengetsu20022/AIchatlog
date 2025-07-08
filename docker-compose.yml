@@ -18,6 +18,8 @@ services:
       - "80:80"
     environment:
       - ENVIRONMENT=production
+    env_file:
+      - .env
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/health"]
@@ -45,6 +47,8 @@ services:
     environment:
       - ENVIRONMENT=development
       - FLUTTER_WEB=true
+    env_file:
+      - .env
     volumes:
       - .:/app
       - /app/.dart_tool
