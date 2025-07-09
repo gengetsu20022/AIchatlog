@@ -14,6 +14,8 @@ AIとの会話を美しく記録する日記アプリです。
 - Flutter Web
 - Firebase (Authentication, Firestore)
 - Docker
+- GitHub Actions + Playwright (E2E Testing)
+- Coderabbit (AI Code Review)
 
 ## E2Eテスト
 
