@@ -1,0 +1,148 @@
+# Coderabbit Configuration for AI Chat Log Project
+# Flutter + Playwright + Security-focused setup
+
+# 基本設定
+language: ja
+reviews:
+  profile: chill
+  request_changes: author
+  auto_review:
+    enabled: true
+    drafts: false
+  
+# レビュー対象ファイル
+path_filters:
+  # Flutter/Dart files
+  - "lib/**/*.dart"
+  - "test/**/*.dart"
+  - "pubspec.yaml"
+  
+  # Playwright E2E tests
+  - "e2e/**/*.js"
+  - "e2e/**/*.ts"
+  - "playwright.config.js"
+  
+  # CI/CD configuration
+  - ".github/workflows/**/*.yml"
+  - ".github/workflows/**/*.yaml"
+  
+  # Docker configuration
+  - "Dockerfile*"
+  - "docker-compose*.yml"
+  
+  # Firebase configuration
+  - "firebase.json"
+  - "firestore.rules"
+  
+  # Security and deployment
+  - "*.conf"
+  - "*.md"
+  - "package.json"
+
+# 除外ファイル
+path_ignore:
+  - "build/**"
+  - "node_modules/**"
+  - ".flutter-plugins*"
+  - ".dart_tool/**"
+  - "test-results/**"
+  - "playwright-report/**"
+  - "coverage/**"
+  - "*.g.dart"
+  - "*.freezed.dart"
+
+# レビュー重点項目
+review_focus:
+  # セキュリティ関連
+  security:
+    - "認証・認可の実装"
+    - "入力値検証"
+    - "XSS/CSRF対策"
+    - "機密情報の取り扱い"
+    - "Firebase Security Rules"
+  
+  # Flutter/Dart品質
+  flutter:
+    - "Widget構造の最適化"
+    - "State管理のベストプラクティス"
+    - "非同期処理の適切な実装"
+    - "メモリリークの防止"
+    - "パフォーマンス最適化"
+  
+  # Playwright テスト品質
+  playwright:
+    - "セレクター戦略の堅牢性"
+    - "テストの安定性"
+    - "待機処理の最適化"
+    - "テストデータ管理"
+    - "ブラウザ互換性"
+  
+  # CI/CD
+  cicd:
+    - "ワークフロー効率化"
+    - "セキュリティ設定"
+    - "エラーハンドリング"
+    - "リソース使用量"
+
+# コメント設定
+comments:
+  tone: constructive
+  format: markdown
+  include_severity: true
+  max_comments_per_review: 25
+  
+# 自動修正提案
+auto_fix:
+  enabled: true
+  types:
+    - "formatting"
+    - "imports"
+    - "simple_refactoring"
+    - "security_patterns"
+
+# 統合設定
+integrations:
+  github:
+    auto_merge_dependencies: false
+    require_approval_for_auto_fixes: true
+    
+# 通知設定
+notifications:
+  slack: false
+  email: false
+  
+# カスタムルール（プロジェクト固有）
+custom_rules:
+  # Flutter固有のルール
+  - name: "flutter_security_check"
+    description: "Flutter Webアプリのセキュリティチェック"
+    pattern: ".*\\.dart$"
+    checks:
+      - "HTML injection防止"
+      - "URL validation"
+      - "Firebase Auth適切な使用"
+  
+  # Playwright固有のルール
+  - name: "playwright_best_practices"
+    description: "Playwrightテストのベストプラクティス"
+    pattern: "e2e/.*\\.(js|ts)$"
+    checks:
+      - "page.waitForSelector使用推奨"
+      - "ハードコードされたsleep回避"
+      - "適切なテストデータ管理"
+  
+  # CI/CD固有のルール
+  - name: "cicd_security"
+    description: "CI/CDパイプラインのセキュリティ"
+    pattern: "\\.github/workflows/.*\\.yml$"
+    checks:
+      - "secrets適切な使用"
+      - "権限最小化"
+      - "タイムアウト設定"
+
+# 品質メトリクス
+quality_metrics:
+  complexity_threshold: 10
+  maintainability_threshold: 80
+  security_threshold: 95
+  test_coverage_threshold: 85 
