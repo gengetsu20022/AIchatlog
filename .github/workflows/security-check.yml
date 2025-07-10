@@ -38,13 +38,14 @@ jobs:
           
           echo "✅ No API keys found in code"
       
-      - name: Check for .env files
+      - name: Check for .env files in repository
         run: |
-          echo "🔍 Checking for .env files..."
+          echo "🔍 Checking for .env files in repository..."
           
-          if find . -name ".env*" -not -path "./.git/*" -not -name "env.example"; then
+          # Gitで追跡されている.envファイルのみをチェック
+          if git ls-files | grep -E "\.env$|\.env\."; then
             echo "⚠️ .env file found in repository!"
-            echo "Please ensure .env files are in .gitignore"
+            echo "Please ensure .env files are in .gitignore and remove them from Git tracking."
             exit 1
           fi
           
