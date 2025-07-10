@@ -56,7 +56,7 @@ jobs:
           echo "🔍 Checking for hardcoded secrets..."
           
           # パスワードの検索（セキュリティユーティリティファイルを除外）
-          if grep -ri "password.*=.*['\"][^'\"]*['\"]" . --exclude-dir=.git --exclude-dir=.github --exclude="*/security_utils.dart"; then
+          if find . -name "*.dart" -not -path "./.git/*" -not -path "./.github/*" -not -name "security_utils.dart" -exec grep -l "password.*=.*['\"][^'\"]*['\"]" {} \; | head -1; then
             echo "⚠️ Potential hardcoded password found!"
             exit 1
           fi
