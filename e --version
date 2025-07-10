@@ -1,0 +1,6 @@
+[33ma7387d7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m 🚨 セキュリティ緊急対応: APIキー漏洩対応とドキュメント整理
+[33m97833dd[m 🔀 マージコンフリクト解決: SECURITY.mdの統合
+[33m998a05a[m Create SECURITY.md
+[33m3c31b59[m 🔐 セキュリティ強化: Firebase環境変数化とGitHubセキュリティ設定
+[33mb22b78b[m Fix CSP and security headers configuration for Flutter Web deployment
+[33mea85f14[m Add Firebase Hosting CI/CD workflows and configuration
