@@ -80,13 +80,13 @@ jobs:
         MAX_REQUESTS_PER_HOUR=1000
         EOF
     
+    - name: Build Flutter Web
+      run: flutter build web --release
+    
     - name: Start local web server
       run: |
         npx serve -s build/web -l 8080 &
         npx wait-on http://localhost:8080 --timeout 30000
-    
-    - name: Build Flutter Web
-      run: flutter build web --release
     
     - name: Run Playwright tests
       run: npx playwright test --project=${{ matrix.browser }}
@@ -223,13 +223,13 @@ jobs:
         MAX_REQUESTS_PER_HOUR=1000
         EOF
     
+    - name: Build Flutter Web
+      run: flutter build web --release
+    
     - name: Start local web server
       run: |
         npx serve -s build/web -l 8080 &
         npx wait-on http://localhost:8080 --timeout 30000
-    
-    - name: Build Flutter Web
-      run: flutter build web --release
     
     - name: Run Mobile Tests
       run: npx playwright test --project="Mobile Chrome" --project="Mobile Safari"
