@@ -81,7 +81,7 @@ jobs:
         EOF
     
     - name: Build Flutter Web
-      run: flutter build web --release
+      run: flutter build web --release --web-renderer html
     
     - name: Start local web server
       run: |
@@ -224,7 +224,7 @@ jobs:
         EOF
     
     - name: Build Flutter Web
-      run: flutter build web --release
+      run: flutter build web --release --web-renderer html
     
     - name: Start local web server
       run: |
