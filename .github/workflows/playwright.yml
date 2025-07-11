@@ -80,6 +80,11 @@ jobs:
         MAX_REQUESTS_PER_HOUR=1000
         EOF
     
+    - name: Start local web server
+      run: |
+        npx serve -s build/web -l 8080 &
+        npx wait-on http://localhost:8080 --timeout 30000
+    
     - name: Build Flutter Web
       run: flutter build web --release
     
@@ -217,6 +222,11 @@ jobs:
         MAX_REQUESTS_PER_MINUTE=60
         MAX_REQUESTS_PER_HOUR=1000
         EOF
+    
+    - name: Start local web server
+      run: |
+        npx serve -s build/web -l 8080 &
+        npx wait-on http://localhost:8080 --timeout 30000
     
     - name: Build Flutter Web
       run: flutter build web --release
