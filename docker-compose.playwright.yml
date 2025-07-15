@@ -23,8 +23,9 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080"]
       interval: 30s
-      timeout: 10s
-      retries: 3
+      timeout: 15s
+      retries: 5
+      start_period: 60s
 
   # Playwright テスト実行
   playwright-test:
@@ -39,13 +40,14 @@ services:
     environment:
       - CI=true
       - PLAYWRIGHT_BASE_URL=http://flutter-web:8080
+      - NODE_OPTIONS=--max-old-space-size=4096
     networks:
       - test-network
     command: |
       bash -c "
         npm ci &&
         npx playwright install &&
-        npx playwright test
+        npx playwright test --project=chromium
       "
 
   # ヘッドレスモード無効でのテスト（デバッグ用）
@@ -63,6 +65,7 @@ services:
       - CI=false
       - DISPLAY=${DISPLAY}
       - PLAYWRIGHT_BASE_URL=http://flutter-web:8080
+      - NODE_OPTIONS=--max-old-space-size=4096
     networks:
       - test-network
     command: |

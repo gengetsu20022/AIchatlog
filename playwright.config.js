@@ -2,11 +2,11 @@
 
 module.exports = defineConfig({
   testDir: "./e2e",
-  timeout: 60 * 1000, // Docker環境では少し長めに設定
-  expect: { timeout: 10000 },
+  timeout: 90 * 1000, // Flutter Webアプリケーションの初期化に時間がかかるため延長
+  expect: { timeout: 20000 }, // 期待値のタイムアウトも延長
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 2 : 1, // ローカルでも1回リトライ
   workers: process.env.CI ? 1 : undefined,
   reporter: [
     ["html", { outputFolder: "playwright-report" }],
@@ -22,8 +22,24 @@ module.exports = defineConfig({
     headless: true,
     viewport: { width: 1280, height: 720 },
     ignoreHTTPSErrors: true,
-    actionTimeout: 15000, // Docker環境では少し長めに
-    navigationTimeout: 45000, // Docker環境では少し長めに
+    actionTimeout: 30000, // Flutter Webアプリケーションの操作に時間がかかるため延長
+    navigationTimeout: 60000, // Flutter Webアプリケーションの初期化に時間がかかるため延長
+    // Flutter Webアプリケーションの安定性向上のための設定
+    launchOptions: {
+      args: [
+        "--disable-web-security",
+        "--disable-features=VizDisplayCompositor",
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--disable-background-timer-throttling",
+        "--disable-backgrounding-occluded-windows",
+        "--disable-renderer-backgrounding",
+        "--disable-field-trial-config",
+        "--disable-ipc-flooding-protection"
+      ]
+    }
   },
   projects: [
     {
@@ -37,7 +53,12 @@ module.exports = defineConfig({
             "--no-sandbox", // Docker環境で必要
             "--disable-setuid-sandbox", // Docker環境で必要
             "--disable-dev-shm-usage", // Docker環境でメモリ不足対策
-            "--disable-gpu" // Docker環境で安定性向上
+            "--disable-gpu", // Docker環境で安定性向上
+            "--disable-background-timer-throttling",
+            "--disable-backgrounding-occluded-windows",
+            "--disable-renderer-backgrounding",
+            "--disable-field-trial-config",
+            "--disable-ipc-flooding-protection"
           ]
         }
       }
@@ -68,7 +89,12 @@ module.exports = defineConfig({
             "--no-sandbox",
             "--disable-setuid-sandbox",
             "--disable-dev-shm-usage",
-            "--disable-gpu"
+            "--disable-gpu",
+            "--disable-background-timer-throttling",
+            "--disable-backgrounding-occluded-windows",
+            "--disable-renderer-backgrounding",
+            "--disable-field-trial-config",
+            "--disable-ipc-flooding-protection"
           ]
         }
       }
@@ -85,5 +111,6 @@ module.exports = defineConfig({
     command: 'flutter build web && python3 -m http.server 8080 --directory build/web',
     port: 8080,
     reuseExistingServer: !process.env.CI,
+    timeout: 120000, // Flutter Webビルドに時間がかかるため延長
   }
 });

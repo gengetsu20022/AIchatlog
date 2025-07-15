@@ -124,11 +124,17 @@ run_docker_tests() {
         exit 1
     fi
     
+    # 既存のコンテナを停止・削除
+    echo -e "${YELLOW}🧹 既存のコンテナをクリーンアップ中...${NC}"
+    docker-compose -f docker-compose.playwright.yml down --volumes --remove-orphans 2>/dev/null || true
+    
     # Docker環境でテスト実行
+    echo -e "${YELLOW}🚀 Dockerコンテナを起動中...${NC}"
     docker-compose -f docker-compose.playwright.yml up --build --abort-on-container-exit
     
     # コンテナ停止とクリーンアップ
-    docker-compose -f docker-compose.playwright.yml down
+    echo -e "${YELLOW}🧹 コンテナをクリーンアップ中...${NC}"
+    docker-compose -f docker-compose.playwright.yml down --volumes --remove-orphans
     
     echo -e "${GREEN}✅ Dockerテスト完了${NC}"
 }
@@ -157,6 +163,14 @@ clean_cache() {
     # Flutterキャッシュ
     flutter clean
     echo "   - Flutterキャッシュクリア"
+    
+    # Dockerキャッシュクリア
+    echo -e "${YELLOW}🐳 Dockerキャッシュもクリアしますか？ (y/N)${NC}"
+    read -r response
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        docker system prune -f
+        echo "   - Dockerキャッシュクリア"
+    fi
     
     echo -e "${GREEN}✅ キャッシュクリア完了${NC}"
 }
@@ -256,8 +270,6 @@ main() {
     if [ "$report" = true ]; then
         show_report
     fi
-    
-    echo -e "${GREEN}🎉 すべての処理が完了しました！${NC}"
 }
 
 # スクリプト実行
