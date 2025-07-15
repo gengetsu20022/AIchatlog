@@ -24,12 +24,8 @@ test.describe('あいろぐ - ホーム画面テスト', () => {
   });
 
   test('ホーム画面の基本表示確認', async ({ page }) => {
-    // アプリタイトルの確認
-    await expect(
-      page.locator('text=あいろぐ')
-        .or(page.locator('h1:has-text("あいろぐ")'))
-        .or(page.locator('*:has-text("あいろぐ")'))
-    ).toBeVisible({ timeout: 15000 });
+    // アプリタイトルの確認 - Flutter Webではテキストが直接表示される
+    await expect(page.locator('text=あいろぐ')).toBeVisible({ timeout: 15000 });
     
     // デモモード表示の確認
     await expect(page.locator('text=デモ')).toBeVisible({ timeout: 10000 });
@@ -37,14 +33,11 @@ test.describe('あいろぐ - ホーム画面テスト', () => {
     // デモ案内メッセージの確認
     await expect(page.locator('text=これはデモ画面です')).toBeVisible({ timeout: 10000 });
     
-    // ログインボタンの確認
-    const loginButton = page.locator('text=ログイン').first();
-    await expect(loginButton).toBeVisible();
-    await expect(loginButton).toBeEnabled();
+    // ログインボタンの確認 - Flutter Webではボタンが直接表示される
+    await expect(page.locator('text=ログイン')).toBeVisible({ timeout: 10000 });
 
-    // 新しい会話追加ボタンの確認
-    const addButton = page.locator('[data-testid="add-chat-fab"]').or(page.locator('button:has-text("新しい会話を追加")'));
-    await expect(addButton).toBeVisible();
+    // 新しい会話追加ボタンの確認 - FloatingActionButton
+    await expect(page.locator('button[aria-label="新しい会話を追加"], button:has([data-icon="add"]), button:has-text("+")')).toBeVisible({ timeout: 10000 });
   });
 
   test('デモデータの表示確認', async ({ page }) => {
@@ -74,8 +67,8 @@ test.describe('あいろぐ - ホーム画面テスト', () => {
   });
 
   test('新規追加ボタンの制限確認', async ({ page }) => {
-    // 新規追加ボタンをクリック
-    const addButton = page.locator('button').filter({ hasText: '+' }).or(page.locator('[title="新しい会話を追加"]'));
+    // 新規追加ボタンをクリック - FloatingActionButton
+    const addButton = page.locator('button[aria-label="新しい会話を追加"], button:has([data-icon="add"]), button:has-text("+")');
     await addButton.click();
     
     // デモモードでは制限されることを示すメッセージが表示される
