@@ -1,115 +1,115 @@
-# あいろぐ (Ailog)
+# あいろぐ (AI Chat Log)
 
-AIとの会話を美しく記録する日記アプリです。
+Flutter Webで構築されたAIチャットログ管理アプリケーションです。
 
 ## 機能
 
-- Google認証によるログイン
-- AIとの会話ログの記録・管理
-- 美しいLINE風チャットUI
-- 複数AIサービス対応（ChatGPT、Gemini等）
-
-## 技術スタック
-
-- Flutter Web
-- Firebase (Authentication, Firestore)
-- Docker
-- GitHub Actions + Playwright (E2E Testing)
-- Coderabbit (AI Code Review)
+- AIとの会話ログの管理
+- デモモードでの機能体験
+- レスポンシブデザイン対応
+- Firebase認証・データベース連携
 
 ## E2Eテスト
 
-このプロジェクトでは、Playwright + GitHub Actionsを使用したE2Eテストを実装しています。
+### 修正内容 (2024年7月)
 
-### テスト実行方法
+Flutter WebアプリケーションのE2Eテストが失敗していた問題を修正しました：
 
-#### Windows (PowerShell)
-```powershell
-# 初回セットアップ
-.\run_e2e_tests.ps1 -Install
+#### 問題の原因
+- Flutter Webの特殊なHTML構造（Canvasベースの描画）により、Playwrightが通常のセレクタで要素を認識できなかった
+- `getByText()`や`getByRole()`などの標準的なセレクタがFlutter Web環境で正しく動作しなかった
 
-# Flutter Webビルド
-.\run_e2e_tests.ps1 -Build
+#### 修正内容
+1. **Flutter側の修正**
+   - 各WidgetにKeyを追加（例：`key: Key('app-title')`）
+   - HTML側で`data-key`属性として出力されるように設定
 
-# E2Eテスト実行
-.\run_e2e_tests.ps1 -Test
+2. **Playwrightテスト側の修正**
+   - セレクタを`[data-key="xxx"]`形式に変更
+   - より確実に要素を特定できるように改善
 
-# 特定ブラウザでのテスト
-.\run_e2e_tests.ps1 -Test -Browser chromium
+#### 修正されたファイル
+- `lib/pages/home_page.dart` - ホーム画面の要素にKey追加
+- `lib/pages/log_input_page.dart` - ログ入力画面の要素にKey追加  
+- `lib/pages/chat_detail_page.dart` - チャット詳細画面の要素にKey追加
+- `e2e/auth.spec.js` - セレクタをKeyベースに変更
+- `e2e/chat-log.spec.js` - セレクタをKeyベースに変更
+- `e2e/chat-detail.spec.js` - セレクタをKeyベースに変更
 
-# モバイルテスト
-.\run_e2e_tests.ps1 -Test -Mobile
-
-# テストレポート表示
-.\run_e2e_tests.ps1 -Report
-
-# 全工程を一度に実行
-.\run_e2e_tests.ps1 -Install -Build -Test
-```
-
-#### Linux/Mac (Bash)
+#### テスト実行方法
 ```bash
-# 初回セットアップ
-./run_e2e_tests.sh -i
+# 全テスト実行
+npx playwright test
 
-# Flutter Webビルド
-./run_e2e_tests.sh -b
+# 特定のブラウザでのテスト実行
+npx playwright test --project=chromium
 
-# E2Eテスト実行
-./run_e2e_tests.sh -t
-
-# 特定ブラウザでのテスト
-./run_e2e_tests.sh -t --browser firefox
-
-# モバイルテスト
-./run_e2e_tests.sh -t --mobile
-
-# テストレポート表示
-./run_e2e_tests.sh -r
-
-# 全工程を一度に実行
-./run_e2e_tests.sh -i -b -t
+# テストレポートの表示
+npx playwright show-report
 ```
 
-#### Docker環境
+## 開発環境のセットアップ
+
+### 前提条件
+- Flutter 3.24.5以上
+- Node.js 18以上
+- npm
+
+### セットアップ手順
+
+1. リポジトリのクローン
 ```bash
-# Docker環境でテスト実行
-docker-compose -f docker-compose.playwright.yml up --build
-
-# またはスクリプト経由
-./run_e2e_tests.sh -d  # Linux/Mac
-.\run_e2e_tests.ps1 -Docker  # Windows
+git clone https://github.com/gengetsu20022/AIchatlog.git
+cd AIchatlog
 ```
 
-### テスト対象ブラウザ
-
-- Chromium (Google Chrome)
-- Firefox
-- WebKit (Safari)
-- Mobile Chrome
-- Mobile Safari
-
-### GitHub Actions
-
-プッシュ時、プルリクエスト時に自動でE2Eテストが実行されます。
-
-- **ワークフロー**: `.github/workflows/playwright.yml`
-- **並列実行**: 複数ブラウザでのテストを並列実行
-- **アーティファクト**: テストレポート、スクリーンショット、動画が保存される
-
-### テストファイル構成
-
-```
-e2e/
-├── auth.spec.js          # 認証機能のテスト
-└── chat-log.spec.js      # チャットログ機能のテスト
+2. Flutter依存関係のインストール
+```bash
+flutter pub get
 ```
 
-### CI/CD統合
+3. Node.js依存関係のインストール
+```bash
+npm install
+```
 
-GitHub Actionsで以下が自動実行されます：
+4. Playwrightブラウザのインストール
+```bash
+npx playwright install
+```
 
-1. Flutter Webアプリのビルド
-2. 複数ブラウザでのE2Eテスト実行
-3. テストレポートの生成
-4. 失敗時のスクリーンショット・動画保存
+5. 環境変数の設定
+```bash
+cp env.example .env
+# .envファイルを編集して必要な値を設定
+```
+
+### 開発サーバーの起動
+
+```bash
+# Flutter Webアプリケーションの起動
+flutter run -d web-server --web-port 8080
+
+# 別のターミナルでE2Eテストの実行
+npx playwright test
+```
+
+## デプロイ
+
+### Firebase Hosting
+
+```bash
+# ビルド
+flutter build web --release
+
+# デプロイ
+firebase deploy --only hosting
+```
+
+## ライセンス
+
+MIT License
+
+## 貢献
+
+プルリクエストやイシューの報告を歓迎します。
