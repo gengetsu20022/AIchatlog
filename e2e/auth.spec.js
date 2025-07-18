@@ -14,7 +14,7 @@ test.describe('あいろぐ - ホーム画面テスト', () => {
       return window.flutterCanvasKit || 
              document.querySelector('flutter-view') ||
              document.querySelector('flt-glass-pane') ||
-             document.querySelector('[data-testid]') ||
+             document.querySelector('[data-key]') ||
              document.body.innerText.includes('あいろぐ') ||
              document.body.innerText.includes('デモ');
     }, { timeout: 30000 });
@@ -24,36 +24,36 @@ test.describe('あいろぐ - ホーム画面テスト', () => {
   });
 
   test('ホーム画面の基本表示確認', async ({ page }) => {
-    // アプリタイトルの確認 - Flutter Webではテキストが直接表示される
-    await expect(page.locator('text=あいろぐ')).toBeVisible({ timeout: 15000 });
+    // アプリタイトルの確認 - Keyベースのセレクタを使用
+    await expect(page.locator('[data-key="app-title"]')).toBeVisible({ timeout: 15000 });
     
     // デモモード表示の確認
-    await expect(page.locator('text=デモ')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-key="demo-badge"]')).toBeVisible({ timeout: 10000 });
     
     // デモ案内メッセージの確認
-    await expect(page.locator('text=これはデモ画面です')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-key="demo-info"]')).toBeVisible({ timeout: 10000 });
     
-    // ログインボタンの確認 - Flutter Webではボタンが直接表示される
-    await expect(page.locator('text=ログイン')).toBeVisible({ timeout: 10000 });
+    // ログインボタンの確認 - Keyベースのセレクタを使用
+    await expect(page.locator('[data-key="login-button"]')).toBeVisible({ timeout: 10000 });
 
-    // 新しい会話追加ボタンの確認 - FloatingActionButton
-    await expect(page.locator('button[aria-label="新しい会話を追加"], button:has([data-icon="add"]), button:has-text("+")')).toBeVisible({ timeout: 10000 });
+    // 新しい会話追加ボタンの確認 - Keyベースのセレクタを使用
+    await expect(page.locator('[data-key="add-chat-button"]')).toBeVisible({ timeout: 10000 });
   });
 
   test('デモデータの表示確認', async ({ page }) => {
-    // デモのチャットログが表示されることを確認
-    await expect(page.locator('text=Claude').or(page.locator('text=ChatGPT')).or(page.locator('text=Gemini'))).toBeVisible({ timeout: 15000 });
+    // デモのチャットログが表示されることを確認 - Keyベースのセレクタを使用
+    await expect(page.locator('[data-key="chat-log-list"]')).toBeVisible({ timeout: 15000 });
     
-    // ユーザー名の表示確認
-    await expect(page.locator('text=デモユーザー')).toBeVisible({ timeout: 10000 });
+    // チャットログカードが表示されることを確認
+    await expect(page.locator('[data-key^="chat-log-card-"]')).toBeVisible({ timeout: 10000 });
     
     // メッセージ件数の表示確認
-    await expect(page.locator('text=件')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-key^="chat-log-count-"]')).toBeVisible({ timeout: 10000 });
   });
 
   test('ログインボタンの動作確認', async ({ page }) => {
     // ログインボタンをクリック
-    await page.click('text=ログイン');
+    await page.click('[data-key="login-button"]');
     
     // ログインページに遷移することを確認（URLやページ内容で判断）
     await page.waitForTimeout(2000);
@@ -67,8 +67,8 @@ test.describe('あいろぐ - ホーム画面テスト', () => {
   });
 
   test('新規追加ボタンの制限確認', async ({ page }) => {
-    // 新規追加ボタンをクリック - FloatingActionButton
-    const addButton = page.locator('button[aria-label="新しい会話を追加"], button:has([data-icon="add"]), button:has-text("+")');
+    // 新規追加ボタンをクリック - Keyベースのセレクタを使用
+    const addButton = page.locator('[data-key="add-chat-button"]');
     await addButton.click();
     
     // デモモードでは制限されることを示すメッセージが表示される
@@ -80,18 +80,18 @@ test.describe('あいろぐ - ホーム画面テスト', () => {
     await page.setViewportSize({ width: 375, height: 667 });
     
     // アプリタイトルが表示されること
-    await expect(page.locator('text=あいろぐ')).toBeVisible();
+    await expect(page.locator('[data-key="app-title"]')).toBeVisible();
     
     // デモ表示が表示されること
-    await expect(page.locator('text=デモ')).toBeVisible();
+    await expect(page.locator('[data-key="demo-badge"]')).toBeVisible();
     
     // タブレットサイズでの表示確認
     await page.setViewportSize({ width: 768, height: 1024 });
-    await expect(page.locator('text=あいろぐ')).toBeVisible();
+    await expect(page.locator('[data-key="app-title"]')).toBeVisible();
     
     // デスクトップサイズに戻す
     await page.setViewportSize({ width: 1280, height: 720 });
-    await expect(page.locator('text=あいろぐ')).toBeVisible();
+    await expect(page.locator('[data-key="app-title"]')).toBeVisible();
   });
 
   test('ページ読み込みパフォーマンス確認', async ({ page }) => {
@@ -106,6 +106,6 @@ test.describe('あいろぐ - ホーム画面テスト', () => {
     expect(loadTime).toBeLessThan(10000);
     
     // 必要な要素が表示されることを確認
-    await expect(page.locator('text=あいろぐ')).toBeVisible();
+    await expect(page.locator('[data-key="app-title"]')).toBeVisible();
   });
 }); 

@@ -410,14 +410,18 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildChatLogList() {
     return ListView.builder(
+      key: const Key('chat-log-list'),
       padding: const EdgeInsets.all(16.0),
       itemCount: _chatLogs.length,
       itemBuilder: (context, index) {
         final chatLog = _chatLogs[index];
         return Card(
+          key: Key('chat-log-card-${chatLog.id}'),
           margin: const EdgeInsets.only(bottom: 8.0),
           child: ListTile(
+            key: Key('chat-log-tile-${chatLog.id}'),
             leading: CircleAvatar(
+              key: Key('chat-log-avatar-${chatLog.id}'),
               child: Text(
                 chatLog.aiName.substring(0, 1).toUpperCase(),
                 style: const TextStyle(fontWeight: FontWeight.bold),
@@ -425,6 +429,7 @@ class _HomePageState extends State<HomePage> {
             ),
             title: Text(
               '${chatLog.userName} × ${chatLog.aiName}',
+              key: Key('chat-log-title-${chatLog.id}'),
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Column(
@@ -432,6 +437,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Text(
                   '${chatLog.chatDate.year}/${chatLog.chatDate.month}/${chatLog.chatDate.day}',
+                  key: Key('chat-log-date-${chatLog.id}'),
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
                 const SizedBox(height: 4),
@@ -439,6 +445,7 @@ class _HomePageState extends State<HomePage> {
                   chatLog.messages.isNotEmpty 
                       ? chatLog.messages.first.text
                       : 'メッセージなし',
+                  key: Key('chat-log-preview-${chatLog.id}'),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -446,6 +453,7 @@ class _HomePageState extends State<HomePage> {
             ),
             trailing: Text(
               '${chatLog.messages.length}件',
+              key: Key('chat-log-count-${chatLog.id}'),
               style: const TextStyle(
                 fontSize: 12,
                 color: Colors.grey,
@@ -464,10 +472,11 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Row(
           children: [
-            const Text('あいろぐ'),
+            const Text('あいろぐ', key: Key('app-title')),
             if (_isDemo) ...[
               const SizedBox(width: 8),
               Container(
+                key: const Key('demo-badge'),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: Colors.orange,
@@ -489,6 +498,7 @@ class _HomePageState extends State<HomePage> {
         actions: [
           if (_isDemo)
             TextButton.icon(
+              key: const Key('login-button'),
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const LoginPage()),
@@ -501,6 +511,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           IconButton(
+            key: const Key('settings-button'),
             onPressed: _showSettingsMenu,
             icon: const Icon(Icons.settings),
             tooltip: '設定',
@@ -511,6 +522,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           if (_isDemo)
             Container(
+              key: const Key('demo-info'),
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               color: Colors.blue.shade50,
@@ -532,7 +544,7 @@ class _HomePageState extends State<HomePage> {
             ),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator(key: Key('loading-indicator')))
                 : _chatLogs.isEmpty
                     ? _buildEmptyState()
                     : _buildChatLogList(),
@@ -540,6 +552,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        key: const Key('add-chat-button'),
         onPressed: _isDemo ? _showDemoMessage : _navigateToLogInput,
         tooltip: '新しい会話を追加',
         child: const Icon(Icons.add),

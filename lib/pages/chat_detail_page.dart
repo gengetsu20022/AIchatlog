@@ -31,6 +31,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         title: Row(
           children: [
             CircleAvatar(
+              key: const Key('chat-detail-avatar'),
               radius: 18,
               backgroundColor: const Color(0xFF10b981),
               child: Text(
@@ -45,6 +46,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             const SizedBox(width: 12),
             Text(
               widget.chatLog.aiName,
+              key: const Key('chat-detail-ai-name'),
               style: const TextStyle(fontSize: 18),
             ),
           ],
@@ -54,10 +56,12 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         elevation: 0,
         actions: [
           IconButton(
+            key: const Key('search-button'),
             icon: const Icon(Icons.search),
             onPressed: () {},
           ),
           IconButton(
+            key: const Key('menu-button'),
             icon: const Icon(Icons.more_vert),
             onPressed: () {},
           ),

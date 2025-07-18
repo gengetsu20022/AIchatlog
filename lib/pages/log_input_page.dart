@@ -162,7 +162,7 @@ class _LogInputPageState extends State<LogInputPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('会話ログを追加'),
+        title: const Text('会話ログを追加', key: Key('log-input-title')),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Padding(
@@ -177,10 +177,12 @@ class _LogInputPageState extends State<LogInputPage> {
                 children: [
                   const Text(
                     '会話した日',
+                    key: Key('date-label'),
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(width: 16),
                   TextButton.icon(
+                    key: const Key('date-picker-button'),
                     onPressed: _selectDate,
                     icon: const Icon(Icons.calendar_today),
                     label: Text(
@@ -240,6 +242,7 @@ class _LogInputPageState extends State<LogInputPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
+                  key: const Key('save-button'),
                   onPressed: _saveLog,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
