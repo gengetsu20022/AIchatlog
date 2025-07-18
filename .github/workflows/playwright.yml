@@ -9,6 +9,13 @@ on:
   # 手動実行を有効化
   workflow_dispatch:
 
+# 最小権限の原則に従った権限設定
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+  security-events: write
+
 jobs:
   test:
     timeout-minutes: 60
@@ -114,6 +121,9 @@ jobs:
     if: always()
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -161,7 +171,9 @@ jobs:
   mobile-test:
     timeout-minutes: 45
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4

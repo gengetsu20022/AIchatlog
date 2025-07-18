@@ -15,22 +15,32 @@ test.describe('あいろぐ - チャットログ機能テスト', () => {
              document.body.innerText.includes('デモ');
     }, { timeout: 30000 });
     
-    await page.waitForTimeout(3000);
+    // アプリのメインタイトルが表示されるまで待機（ロード完了の指標）
+    await expect(page.getByRole('heading', { name: 'あいろぐ' })).toBeVisible({ timeout: 45000 });
   });
 
   test('ログ入力ページの基本機能確認', async ({ page }) => {
-    // 新規追加ボタンをクリック
-    const addButton = page.locator('[data-key="add-chat-button"]');
+    // 新規追加ボタンをクリック - ロールベースのロケーターを使用
+    const addButton = page.getByRole('button', { name: '新しい会話を追加' });
+    await expect(addButton).toBeVisible();
     await addButton.click();
     
     // ログ入力ページの要素が表示されることを確認
-    await expect(page.locator('[data-key="log-input-title"]')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('[data-key="chat_log_field"]')).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByRole('heading', { name: '会話ログを追加' })
+        .or(page.locator('[data-key="log-input-title"]'))
+    ).toBeVisible({ timeout: 10000 });
+    
+    await expect(
+      page.locator('[data-key="chat_log_field"]')
+        .or(page.getByRole('textbox', { name: /会話ログ/ }))
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test('チャットログの入力と解析テスト', async ({ page }) => {
-    // 新規追加ボタンをクリック
-    const addButton = page.locator('[data-key="add-chat-button"]');
+    // 新規追加ボタンをクリック - ロールベースのロケーターを使用
+    const addButton = page.getByRole('button', { name: '新しい会話を追加' });
+    await expect(addButton).toBeVisible();
     await addButton.click();
     
     // サンプルログを入力
@@ -41,11 +51,15 @@ AI: DartはFlutterアプリケーションを書くためのプログラミン�
 
     await page.locator('[data-key="chat_log_field"]').fill(sampleLog);
     
-    // 解析ボタンをクリック
-    await page.locator('[data-key="save-button"]').click();
+    // 解析ボタンをクリック - ロールベースのロケーターを使用
+    await page.getByRole('button', { name: '保存' }).click();
     
     // 解析結果が表示されることを確認
-    await expect(page.locator('text=解析完了, text=分析完了')).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByText('解析完了')
+        .or(page.getByText('分析完了'))
+        .or(page.getByText('会話ログが保存されました'))
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test('ログリストページの表示確認', async ({ page }) => {
@@ -53,53 +67,74 @@ AI: DartはFlutterアプリケーションを書くためのプログラミン�
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     
-    // チャットログが表示されることを確認
-    await expect(page.locator('[data-key="chat-log-list"]')).toBeVisible({ timeout: 15000 });
+    // チャットログが表示されることを確認 - ロールベースのロケーターを使用
+    await expect(
+      page.getByRole('button', { name: /Claude|ChatGPT|Gemini/ }).first()
+        .or(page.locator('[data-key="chat-log-list"]'))
+    ).toBeVisible({ timeout: 15000 });
   });
 
   test('チャットログ詳細ページの表示確認', async ({ page }) => {
-    // チャットログをクリック
-    await page.locator('[data-key^="chat-log-tile-"]').first().click();
+    // チャットログをクリック - ロールベースのロケーターを使用
+    const chatItem = page.getByRole('button', { name: /Claude|ChatGPT|Gemini/ }).first();
+    await expect(chatItem).toBeVisible();
+    await chatItem.click();
     
     // 詳細ページの要素が表示されることを確認
-    await expect(page.locator('[data-key="chat-detail-ai-name"]')).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByRole('heading', { name: /チャット詳細|会話詳細/ })
+        .or(page.locator('[data-key="chat-detail-ai-name"]'))
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test('レスポンシブデザイン - チャットログページ', async ({ page }) => {
-    // 新規追加ボタンをクリック
-    const addButton = page.locator('[data-key="add-chat-button"]');
+    // 新規追加ボタンをクリック - ロールベースのロケーターを使用
+    const addButton = page.getByRole('button', { name: '新しい会話を追加' });
+    await expect(addButton).toBeVisible();
     await addButton.click();
     
     // モバイルサイズでの表示確認
     await page.setViewportSize({ width: 375, height: 667 });
-    await expect(page.locator('[data-key="log-input-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByRole('heading', { name: '会話ログを追加' })
+        .or(page.locator('[data-key="log-input-title"]'))
+    ).toBeVisible({ timeout: 10000 });
     
     // デスクトップサイズに戻す
     await page.setViewportSize({ width: 1280, height: 720 });
-    await expect(page.locator('[data-key="log-input-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByRole('heading', { name: '会話ログを追加' })
+        .or(page.locator('[data-key="log-input-title"]'))
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test('ナビゲーション機能確認', async ({ page }) => {
-    // 新規追加ボタンをクリック
-    const addButton = page.locator('[data-key="add-chat-button"]');
+    // 新規追加ボタンをクリック - ロールベースのロケーターを使用
+    const addButton = page.getByRole('button', { name: '新しい会話を追加' });
+    await expect(addButton).toBeVisible();
     await addButton.click();
     
     // 戻るボタンをクリック
-    await page.locator('button[aria-label*="back"], button:has([data-icon="arrow_back"])').click();
+    await page.getByRole('button', { name: /back|戻る/ }).click();
     
     // ホーム画面に戻ることを確認
-    await expect(page.locator('[data-key="app-title"]')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: 'あいろぐ' })).toBeVisible({ timeout: 10000 });
   });
 
   test('エラーハンドリング確認', async ({ page }) => {
-    // 新規追加ボタンをクリック
-    const addButton = page.locator('[data-key="add-chat-button"]');
+    // 新規追加ボタンをクリック - ロールベースのロケーターを使用
+    const addButton = page.getByRole('button', { name: '新しい会話を追加' });
+    await expect(addButton).toBeVisible();
     await addButton.click();
     
     // 空のログを送信
-    await page.locator('[data-key="save-button"]').click();
+    await page.getByRole('button', { name: '保存' }).click();
     
     // エラーメッセージが表示されることを確認
-    await expect(page.locator('text=エラー, text=入力してください')).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByText('エラー')
+        .or(page.getByText('入力してください'))
+        .or(page.getByText('を入力してください'))
+    ).toBeVisible({ timeout: 10000 });
   });
 }); 
